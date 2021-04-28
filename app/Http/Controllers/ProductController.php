@@ -17,7 +17,15 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return view('products.index');
+        $products = Product::with('images', 'ProductVariantPrices', 'ProductVariants')->paginate(2);
+        
+
+        $variants = ProductVariant::addSelect(['title' => Variant::select('title')
+            ->whereColumn('id', 'product_variants.variant_id')
+            ->limit(1)
+        ])->get()->groupBy('title');
+
+        return view('products.index', compact('products', 'variants'));
     }
 
     /**
@@ -39,7 +47,8 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-
+        echo('<pre>');
+        log($request->all());
     }
 
 
