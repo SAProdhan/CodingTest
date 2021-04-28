@@ -114,18 +114,22 @@ export default {
         product:{
             type: Object,
             required:true
+        },
+        product_variants:{
+            type: Object,
+            required:true
         }
     },
     data() {
         return {
-            product_name: '',
-            product_sku: '',
-            description: '',
+            product_name: this.product.title,
+            product_sku: this.product.sku,
+            description: this.product.description,
             images: [],
             product_variant: [
                 {
-                    option: this.variants[0].id,
-                    tags: []
+                    option: this.product_variants.key,
+                    tags: this.product_variants.Array
                 }
             ],
             product_variant_prices: [],

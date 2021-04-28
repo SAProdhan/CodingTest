@@ -164,7 +164,17 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $variants = Variant::all();
-        return view('products.edit', compact('variants', 'product'));
+        $product_variants = $product->ProductVariants->groupBy('variant_id');
+        // echo('<pre>');
+        // foreach($product_variants as $key=>$pv)
+        // {
+        //     echo('<br>');
+        //     printf($pv);
+        //     echo('<br>');
+        //     printf($key);
+        // }
+        
+        return view('products.edit', compact('variants', 'product', 'product_variants'));
     }
 
     /**

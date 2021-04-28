@@ -8,6 +8,7 @@
         <edit-product 
             :variants="{{ $variants }}"
             :product="{{$product}}"
+            :product_variants="{{$product_variants}}"
             >Loading</edit-product>
     </div>
 @endsection
