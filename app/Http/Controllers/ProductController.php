@@ -47,8 +47,100 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        echo('<pre>');
-        log($request->all());
+        // // echo('<pre>');
+        // print_r($request->all());
+        $product = new Product();
+        $product->title = $request->title;
+        $product->sku = $request->sku;
+        $product->description = $request->description;
+        $status = $product->save();
+
+        if(!$status)
+        {
+            return $status;
+        }
+
+        $product_variants_prices = [];
+        $product_variants = [];
+        $product_images = [];
+
+        foreach($request->product_variant as $pv)
+        {
+            foreach($pv['tags'] as $tag)
+            {
+                array_push($product_variants, Array(
+                    'variant'=> $tag,
+                    'variant_id'=>$pv['option'],
+                    'product_id'=>$product->id,
+                    'created_at'=> now(),
+                    'updated_at'=> now()
+                ));
+            }
+        }
+
+        
+        $status = ProductVariant::insert($product_variants);
+
+        if(!$status)
+        {
+            return $status;
+        }
+
+        // foreach($request->product_image)
+        // {
+        //     array_push($product_images, Array(
+        //         'product_id'=>$product->id,
+        //         'file_path'=>
+        //     ))
+        // }
+
+        foreach($request->product_variant_prices as $pvprice)
+        {
+            $titles = explode("/",$pvprice['title']);
+            $product_variant_one = '';
+            $product_variant_two = '';
+            $product_variant_three = '';
+            foreach($titles as $index=>$title)
+            {
+                if($title)
+                {
+                    if($index==0)
+                    {
+                        $product_variant_one=ProductVariant::where('variant',$title)->where('product_id', $product->id)->first()->id;
+                    }
+                    elseif($index==1)
+                    {
+                        $product_variant_two=ProductVariant::where('variant',$title)->where('product_id', $product->id)->first()->id;
+                    }
+                    elseif($index==2)
+                    {
+                        $product_variant_three=ProductVariant::where('variant',$title)->where('product_id', $product->id)->first()->id;
+                    }
+                }
+            }
+
+            array_push($product_variants_prices, Array(
+                'product_variant_one'=>$product_variant_one,
+                'product_variant_two'=>$product_variant_two,
+                'product_variant_three'=>$product_variant_three,
+                'price'=>$pvprice['price'],
+                'stock'=>$pvprice['stock'],
+                'product_id'=>$product->id,
+                'created_at'=> now(),
+                'updated_at'=> now()
+            ));
+        }
+
+
+        
+        $status = ProductVariantPrice::insert($product_variants_prices);
+
+        if(!$status)
+        {
+            return $status;
+        }
+
+        return true;
     }
 
 
@@ -72,7 +164,7 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $variants = Variant::all();
-        return view('products.edit', compact('variants'));
+        return view('products.edit', compact('variants', 'product'));
     }
 
     /**
